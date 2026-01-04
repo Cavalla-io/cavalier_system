@@ -28,6 +28,20 @@ def ros_health(logger):
             return False
     return True
 
+def docker_health(logger):
+    docker_result = check_docker()
+    if docker_result.returncode != 0:
+        logger.error('Docker is not running')
+        try:
+            setup_docker()
+            logger.info('Docker setup successful')
+        except Exception as e:
+            logger.error(f'Error setting up Docker: {e}')
+            return False
+        return False
+    return True
+    
+
 class SystemHealth(Node):
     def __init__(self):
         super().__init__('system_health')
