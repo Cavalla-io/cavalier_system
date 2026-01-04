@@ -1,2 +1,6 @@
 /mima_counterbalance_controls/
 /mima_counterbalance_sensors/
+/system/build/
+/system/install/
+/system/log/
+*.swp
