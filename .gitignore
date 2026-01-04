@@ -4,3 +4,4 @@
 /system/install/
 /system/log/
 *.swp
+*.pyc
