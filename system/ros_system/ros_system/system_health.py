@@ -21,8 +21,8 @@ class SystemHealth(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    forklift_health = ForkliftHealth()
-    rclpy.spin(forklift_health)
+    system_health = SystemHealth()
+    rclpy.spin(system_health)
     rclpy.shutdown()
 
 if __name__ == '__main__':
