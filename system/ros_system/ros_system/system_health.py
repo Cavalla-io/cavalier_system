@@ -39,7 +39,6 @@ class SystemHealth(Node):
             drive_fault_result = check_drive_fault()
             print(drive_fault_result)
             time.sleep(10)
-            rclpy.spin_once(self)
 
 def main(args=None):
     rclpy.init(args=args)
