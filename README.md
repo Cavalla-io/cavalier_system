@@ -1,6 +1,6 @@
 # Cavalier System
 
-*** The master repo for our forklifts ***
+***The master repo for our forklifts***
 
 Everything necessary to get the forklifts running starts here
 
