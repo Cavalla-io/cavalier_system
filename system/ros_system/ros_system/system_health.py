@@ -1,7 +1,7 @@
 import time
 import rclpy
 from rclpy.node import Node
-from ros_system.functions.setup_commands import check_can, setup_can, check_ros, check_docker, check_drive_fault
+from ros_system.functions.setup_commands import check_can, setup_can, check_ros, check_docker
 
 def can_health(logger):
     can_result = check_can()
@@ -50,8 +50,6 @@ class SystemHealth(Node):
             can_health(self.get_logger())
             ros_health(self.get_logger())
             docker_result = check_docker()
-            drive_fault_result = check_drive_fault()
-            print(drive_fault_result)
             time.sleep(10)
 
 def main(args=None):
