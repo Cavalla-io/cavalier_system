@@ -3,5 +3,7 @@
 /system/build/
 /system/install/
 /system/log/
+/system_logs/hardware/*
+/system_logs/software/*
 *.swp
 *.pyc
