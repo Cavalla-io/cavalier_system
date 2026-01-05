@@ -1,7 +1,8 @@
 import time
 import rclpy
 from rclpy.node import Node
-from ros_system.functions.setup_commands import check_can, setup_can, check_ros, check_docker
+from ros_system.functions.setup_commands import check_can, setup_can, check_ros, check_docker, setup_docker
+from ros_system.functions.logging import create_log_file
 
 def can_health(logger):
     can_result = check_can()
@@ -12,6 +13,7 @@ def can_health(logger):
             logger.info('CAN setup successful')
         except Exception as e:
             logger.error(f'Error setting up CAN: {e}')
+            #TODO: escalate to forklift_health node to check hardware
             return False
         time.sleep(1)
     else:
@@ -25,6 +27,8 @@ def ros_health(logger):
     for topic in expected_topics:
         if topic not in ros_result:
             logger.error(f'{topic} is not running')
+            #TODO: escalate to forklift_health node to check if the forklift is even meant to be on 
+            # also check if the node is running that is meant to be publishing the topic
             return False
     return True
 
@@ -39,7 +43,9 @@ def docker_health(logger):
             logger.error(f'Error setting up Docker: {e}')
             return False
         return False
-    return True
+    else:
+        logger.debug('Docker is running')
+        return True
     
 
 class SystemHealth(Node):
@@ -49,7 +55,8 @@ class SystemHealth(Node):
         while rclpy.ok():
             can_health(self.get_logger())
             ros_health(self.get_logger())
-            docker_result = check_docker()
+            docker_health(self.get_logger())
+
             time.sleep(10)
 
 def main(args=None):
