@@ -22,5 +22,20 @@ def create_log_file(log_type, log_name, content):
     with open(log_file_path, 'w') as f:
         json.dump(content, f)
 
+def create_log_ros_payload(log_type, log_name, content):
+    if log_type == "software":
+        topic = "/system_health"
+    elif log_type == "hardware":
+        topic = "/forklift_health"
+    else:
+        raise ValueError("Invalid log type")
+
+    payload = {
+        "log_type": log_type,
+        "log_name": log_name,
+        "content": content}
+
+    return payload
+
 if __name__ == "__main__":
     create_log_file("software", "test", "test")

@@ -1,0 +1,46 @@
+{
+    "errors": {
+      "SYS-001": {
+        "severity": "CRITICAL",
+        "component": "CAN",
+        "description": "CAN interface can0 is down or not detected.",
+        "action": "Check physical CAN connection and verify kernel modules are loaded with forklift_health node. Restart the forklift."
+      },
+      "SYS-002": {
+        "severity": "CRITICAL",
+        "component": "CAN",
+        "description": "CAN setup command failed.",
+        "action": "Run setup command manually with verbose output to diagnose. Restart the forklift."
+      },
+      "SYS-004": {
+        "severity": "CRITICAL",
+        "component": "ROS",
+        "description": "Critical ROS node is not running.",
+        "action": "Restart the ROS node and check node logs for crashes."
+      },
+      "SYS-005": {
+        "severity": "WARNING",
+        "component": "ROS",
+        "description": "Expected ROS topic is not being published.",
+        "action": "Verify the publisher node is active and healthy."
+      },
+      "SYS-006": {
+        "severity": "CRITICAL",
+        "component": "DOCKER",
+        "description": "Teleop docker container is not running.",
+        "action": "Start the teleop docker container and check logs for errors."
+      },
+      "HW-001": {
+        "severity": "CRITICAL",
+        "component": "DRIVE_TRAIN",
+        "description": "Drive motor controller reported a fault code.",
+        "action": "Check logs for specific flash code diagnosis."
+      },
+      "HW-002": {
+        "severity": "FATAL",
+        "component": "CAN",
+        "description": "Can hardware fault detected.",
+        "action": "Fix physical CAN connection"
+      }
+    }
+  }
