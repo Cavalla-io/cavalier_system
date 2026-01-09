@@ -6,7 +6,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from ament_index_python.packages import get_package_share_directory
 
-from ros_system.functions.setup_commands import check_can, setup_can, check_ros, check_docker, setup_docker
+from ros_system.functions.setup_commands import CanInterface, check_ros, check_docker, setup_docker
 from ros_system.functions.logging import create_log_file, create_log_ros_payload
 
 # Helper to load error codes efficiently
@@ -24,11 +24,12 @@ def load_error_codes():
 ERROR_CODES = load_error_codes()
 
 def can_health(logger):
-    can_result = check_can()
+    can = CanInterface()
+    can_result = can.check()
     if not can_result:
         logger.error('CAN is not running')
         try:
-            setup_can()
+            can.setup()
             logger.info('CAN setup successful')
             # Warning that it had to restart
             error_payload = ERROR_CODES.get("SYS-001", {}).copy()

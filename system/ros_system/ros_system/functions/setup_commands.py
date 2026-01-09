@@ -3,18 +3,40 @@ import subprocess
 import json
 from ament_index_python.packages import get_package_share_directory
 
+class CanInterface:
+    def __init__(self, interface="can0", bitrate=250000):
+        self.interface = interface
+        self.bitrate = bitrate
+
+    def check(self):
+        """Checks if the CAN interface is UP."""
+        can_check_command = ["sudo", "ip", "link", "show", self.interface]
+        try:
+            result = subprocess.run(can_check_command, capture_output=True, text=True, check=True)
+            if "UP" in result.stdout:
+                return True
+            else:
+                return False
+        except subprocess.CalledProcessError:
+            return False
+
+    def setup(self):
+        """Sets up the CAN interface."""
+        subprocess.run([
+            "sudo", "ip", "link", "set", "up", 
+            self.interface, 
+            "type", "can", 
+            "bitrate", str(self.bitrate)
+        ])
+
+# Wrapper functions for backward compatibility with existing code
 def check_can():
-    can_check_command = ["sudo", "ip", "link", "show", "can0"]
-    result = subprocess.run(can_check_command, capture_output=True, text=True, check=True)
-    if "UP" in result.stdout:
-        final_result = True
-    else:
-        final_result = False
-    return final_result
+    can = CanInterface()
+    return can.check()
 
 def setup_can():
-    subprocess.run(["sudo", "ip", "link", "set", "up", "can0", "type", "can", "bitrate", "250000"])
-    pass
+    can = CanInterface()
+    can.setup()
 
 def check_ros():
     check_topic_command = ('source /opt/ros/jazzy/setup.bash;ros2 topic list')
@@ -33,4 +55,5 @@ def setup_docker():
     pass
 
 if __name__ == "__main__":
-    print("Checking CAN status:", check_can())
+    can = CanInterface()
+    print(f"Checking {can.interface} status:", can.check())
