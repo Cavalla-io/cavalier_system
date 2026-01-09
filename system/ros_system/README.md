@@ -12,7 +12,7 @@ This packages purpose is to keep the forklift in a healthy state and report any 
     This node tracks the health of all the systems our software has control over (ros, can, remote op, etc.).
     The forklift_health node can be called upon from this file  
     TODO:
-     - publish health data over /cavalier_health topic
+     - publish health data over /cavalier_health topic (one of the most important features will be displaying on the front end when the controls are off and allowing the remote operator to turn it on and off.
      - add loggin in json format for errors
 - **teleop_start**
     This node starts everything necessary for teleop. This includes control scripts and driver aids. It also reads from the health topic to make sure it is in a good state.  
