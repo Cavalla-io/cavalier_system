@@ -1,27 +1,63 @@
 import os
 import subprocess
 import json
+import can
 from ament_index_python.packages import get_package_share_directory
+
+class BitAccessibleByte(int):
+    # a wrapper around int that allows bit access.
+    # Usage:
+    #   byte = BitAccessibleByte(0x05)
+    #   byte[0]  # Returns 1 (bit 0 is set)
+    #   byte.bit(2) # Returns 1 (bit 2 is set)
+    def __new__(cls, value):
+        return super().__new__(cls, value)
+
+    def __getitem__(self, bit_index):
+        # allows access via byte[bit_index]
+        if not (0 <= bit_index <= 7):
+            raise IndexError("Bit index must be between 0 and 7")
+        return (self >> bit_index) & 1
+
+    def bit(self, bit_index):
+        # readable method for bit access
+        return self[bit_index]
+
+class BitAccessibleData(bytes):
+    # wrapper around bytes that returns BitAccessibleByte when indexed
+    def __new__(cls, source):
+        return super().__new__(cls, source)
+
+    def __getitem__(self, index):
+        val = super().__getitem__(index)
+        return BitAccessibleByte(val)
+
 
 class CanInterface:
     def __init__(self, interface="can0", bitrate=250000):
         self.interface = interface
         self.bitrate = bitrate
+        self.bus = None
 
     def check(self):
-        """Checks if the CAN interface is UP."""
-        can_check_command = ["sudo", "ip", "link", "show", self.interface]
+        # checks if the can interface is up using sysfs
+        operstate_path = f"/sys/class/net/{self.interface}/operstate"
+        if not os.path.exists(operstate_path):
+            return False
+            
         try:
-            result = subprocess.run(can_check_command, capture_output=True, text=True, check=True)
-            if "UP" in result.stdout:
-                return True
-            else:
+            with open(operstate_path, 'r') as f:
+                state = f.read().strip()
+            # CAN interfaces often show as 'unknown' when up because they lack carrier detect
+            # If it says 'down', it is definitely down.
+            if state == 'down':
                 return False
-        except subprocess.CalledProcessError:
+            return True
+        except Exception:
             return False
 
     def setup(self):
-        """Sets up the CAN interface."""
+        # sets up the can interface
         subprocess.run([
             "sudo", "ip", "link", "set", "up", 
             self.interface, 
@@ -29,14 +65,54 @@ class CanInterface:
             "bitrate", str(self.bitrate)
         ])
 
-# Wrapper functions for backward compatibility with existing code
-def check_can():
-    can = CanInterface()
-    return can.check()
+    def connect(self):
+        """Connects to the CAN bus using python-can."""
+        try:
+            self.bus = can.Bus(interface='socketcan', channel=self.interface, bitrate=self.bitrate)
+            return True
+        except can.CanError as e:
+            print(f"Failed to connect to CAN bus: {e}")
+            return False
 
-def setup_can():
-    can = CanInterface()
-    can.setup()
+    def send_message(self, arbitration_id, data, is_extended_id=False):
+        # sends can message
+        if not self.bus:
+            if not self.connect():
+                return False
+        
+        msg = can.Message(arbitration_id=arbitration_id, data=data, is_extended_id=is_extended_id)
+        try:
+            self.bus.send(msg)
+            return True
+        except can.CanError as e:
+            print(f"Message not sent: {e}")
+            return False
+
+    def read_message(self, arbitration_id, timeout=1.0):
+        # reads a single message from specified frame from the bus
+        # returns data as a bytearray, or None if no message
+        if not self.bus:
+            if not self.connect():
+                return None
+        
+        # apply filter to only see the requested ID (kernel mask)
+        original_filters = self.bus.filters
+        self.bus.set_filters([{"can_id": arbitration_id, "can_mask": 0x7FF, "extended": False}])
+
+        try:
+            msg = self.bus.recv(timeout=timeout)
+            if msg:
+                # Wrap the data in our custom class
+                return BitAccessibleData(msg.data)
+            return None
+        except (can.CanError, OSError) as e:
+            # Catch network down errors gracefully
+            print(f"CAN Read Error: {e}")
+            return None
+        finally:
+            # restore original filters (usually None/All)
+            self.bus.set_filters(original_filters)
+
 
 def check_ros():
     check_topic_command = ('source /opt/ros/jazzy/setup.bash;ros2 topic list')
@@ -55,5 +131,5 @@ def setup_docker():
     pass
 
 if __name__ == "__main__":
-    can = CanInterface()
-    print(f"Checking {can.interface} status:", can.check())
+    can_interface = CanInterface()
+    print(f"Checking {can_interface.interface} status:", can_interface.check())

@@ -9,6 +9,8 @@ from ament_index_python.packages import get_package_share_directory
 from ros_system.functions.setup_commands import CanInterface, check_ros, check_docker, setup_docker
 from ros_system.functions.logging import create_log_file, create_log_ros_payload
 
+#--------------------------------- HELPER FUNCTIONS ---------------------------------#
+
 # Helper to load error codes efficiently
 def load_error_codes():
     try:
@@ -43,7 +45,7 @@ def can_health(logger):
             return error_payload
     else:
         logger.debug('CAN is running')
-        return None
+        return True
 
 def ros_health(logger):
     expected_topics = ['/joy', '/safety']
@@ -56,7 +58,7 @@ def ros_health(logger):
             error_payload = ERROR_CODES.get("SYS-005", {}).copy()
             error_payload["details"] = f"Topic {topic} missing"
             return error_payload
-    return None
+    return True
 
 def docker_health(logger):
     docker_result = check_docker()
@@ -75,7 +77,11 @@ def docker_health(logger):
             return error_payload
     else:
         logger.debug('Docker is running')
-        return None
+        return True
+
+
+
+#--------------------------------- MAIN NODE ---------------------------------#
 
 class SystemHealth(Node):
     def __init__(self):
@@ -93,12 +99,13 @@ class SystemHealth(Node):
         ros_payload = ros_health(self.get_logger())
         docker_payload = docker_health(self.get_logger())
 
-        # Collect active errors
-        active_errors = [p for p in [can_payload, ros_payload, docker_payload] if p is not None]
+        # Collect active errors (anything that is NOT True)
+        active_errors = [p for p in [can_payload, ros_payload, docker_payload] if p is not True]
 
         final_payload = {
             "timestamp": time.time(),
             "status": "OK" if not active_errors else "ERROR",
+            "can_status": can_payload,
             "active_errors": active_errors
         }
         
