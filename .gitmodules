@@ -1,0 +1,6 @@
+[submodule "mima_counterbalance_sensors"]
+	path = mima_counterbalance_sensors
+	url = git@github.com:Cavalla-io/mima_counterbalance_sensors.git
+[submodule "mima_counterbalance_controls"]
+	path = mima_counterbalance_controls
+	url = git@github.com:Cavalla-io/mima_counterbalance_controls.git
