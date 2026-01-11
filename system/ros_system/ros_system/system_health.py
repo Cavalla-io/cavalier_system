@@ -6,8 +6,8 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from ament_index_python.packages import get_package_share_directory
 
-from ros_system.functions.setup_commands import CanInterface, check_ros, check_docker, setup_docker
-from ros_system.functions.logging import create_log_file, create_log_ros_payload
+from ros_system.functions.setup_commands import CanInterface, check_ros, check_docker, setup_docker, check_cameras
+from ros_system.functions.system_logging import create_log_file, create_log_ros_payload
 
 #--------------------------------- HELPER FUNCTIONS ---------------------------------#
 
@@ -98,6 +98,7 @@ class SystemHealth(Node):
         can_payload = can_health(self.get_logger())
         ros_payload = ros_health(self.get_logger())
         docker_payload = docker_health(self.get_logger())
+        cameras_payload = check_cameras()
 
         # Collect active errors (anything that is NOT True)
         active_errors = [p for p in [can_payload, ros_payload, docker_payload] if p is not True]
@@ -106,7 +107,8 @@ class SystemHealth(Node):
             "timestamp": time.time(),
             "status": "OK" if not active_errors else "ERROR",
             "can_status": can_payload,
-            "active_errors": active_errors
+            "active_errors": active_errors,
+            "cameras_status": cameras_payload
         }
         
         # Publish to /cavalier_health
