@@ -151,6 +151,20 @@ def check_cameras():
             results[ip] = False
     return results
 
+def check_lidars():
+    results = {}
+    # lidars 75 80 85
+    for i in [75, 80, 85]:
+        ip = f"192.168.2.{i}"
+        # Ping with count 1 and timeout 1 second
+        command = ["ping", "-c", "1", "-W", "1", ip]
+        try:
+            subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            results[ip] = True
+        except subprocess.CalledProcessError:
+            results[ip] = False
+    return results
+
 def setup_docker():
     print("todo: setup docker")
     pass
@@ -159,3 +173,4 @@ if __name__ == "__main__":
     can_interface = CanInterface()
     print(f"Checking {can_interface.interface} status:", can_interface.check())
     print("Checking cameras:", check_cameras())
+    print("Checking lidars:", check_lidars())
