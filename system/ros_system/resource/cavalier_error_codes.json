@@ -30,6 +30,18 @@
         "description": "Teleop docker container is not running.",
         "action": "Start the teleop docker container and check logs for errors."
       },
+      "SYS-007": {
+        "severity": "CRITICAL",
+        "component": "CAMERA",
+        "description": "One or more cameras are not detected.",
+        "action": "check camera connection on luxonis standard subnet"
+      },
+      "SYS-008": {
+        "severity": "CRITICAL",
+        "component": "SENSOR",
+        "description": "Pallet detection sensor is not sending data.",
+        "action": "TODO"
+      },
       "HW-001": {
         "severity": "CRITICAL",
         "component": "DRIVE_TRAIN",
@@ -41,6 +53,18 @@
         "component": "CAN",
         "description": "Can hardware fault detected.",
         "action": "Fix physical CAN connection"
+      },
+      "HW-003": {
+        "severity": "CRITICAL",
+        "component": "CAMERA",
+        "description": "One or more cameras are not detected, no software fix available.",
+        "action": "Check physical camera connection"
+      },
+      "HW-004": {
+        "severity": "CRITICAL",
+        "component": "SENSOR",
+        "description": "Pallet detection sensor is not sending data, no software fix available.",
+        "action": "Check physical sensor connection"
       }
     }
   }

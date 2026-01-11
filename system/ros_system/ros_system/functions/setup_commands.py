@@ -113,6 +113,17 @@ class CanInterface:
             # restore original filters (usually None/All)
             self.bus.set_filters(original_filters)
 
+    def create_continuous_reader(self, arbitration_id):
+        # returns a NEW can.Bus instance filtered for arbitration_id.
+        # user must handle recv() loop on this bus object.
+        # useful for high-frequency polling nodes.
+        filters = [{"can_id": arbitration_id, "can_mask": 0x7FF, "extended": False}]
+        try:
+            return can.Bus(channel=self.interface, interface='socketcan', can_filters=filters)
+        except Exception as e:
+            print(f"Failed to create continuous reader: {e}")
+            return None
+
 
 def check_ros():
     check_topic_command = ('source /opt/ros/jazzy/setup.bash;ros2 topic list')

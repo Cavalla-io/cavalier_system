@@ -30,7 +30,8 @@ setup(
         'console_scripts': [
             'forklift_health = ros_system.forklift_health:main',
             'system_health = ros_system.system_health:main',
-            'teleop_start = ros_system.teleop_start:main'
+            'teleop_start = ros_system.teleop_start:main',
+            'forklift_state = ros_system.forklift_state:main'
         ],
     },
 )
