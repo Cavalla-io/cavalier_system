@@ -137,6 +137,20 @@ def check_docker():
     result = subprocess.run(check_docker_command, capture_output=True, text=True, check=True)
     return result
 
+def check_cameras():
+    results = {}
+    # cameras 20-26
+    for i in range(20, 27):
+        ip = f"192.168.2.{i}"
+        # Ping with count 1 and timeout 1 second
+        command = ["ping", "-c", "1", "-W", "1", ip]
+        try:
+            subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            results[ip] = True
+        except subprocess.CalledProcessError:
+            results[ip] = False
+    return results
+
 def setup_docker():
     print("todo: setup docker")
     pass
@@ -144,3 +158,4 @@ def setup_docker():
 if __name__ == "__main__":
     can_interface = CanInterface()
     print(f"Checking {can_interface.interface} status:", can_interface.check())
+    print("Checking cameras:", check_cameras())
