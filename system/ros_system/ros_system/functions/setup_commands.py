@@ -58,6 +58,7 @@ class CanInterface:
 
     def setup(self):
         # sets up the can interface
+        subprocess.run(["sudo", "ip", "link", "set", "down", self.interface])
         subprocess.run([
             "sudo", "ip", "link", "set", "up", 
             self.interface, 

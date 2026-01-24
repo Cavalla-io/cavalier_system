@@ -97,12 +97,12 @@ class SystemHealth(Node):
         self.get_logger().info('Performing health check...')
         can_payload = can_health(self.get_logger())
         ros_payload = ros_health(self.get_logger())
-        docker_payload = docker_health(self.get_logger())
+        # docker_payload = docker_health(self.get_logger())
         cameras_payload = check_cameras()
         lidars_payload = check_lidars()
 
         # Collect active errors (anything that is NOT True)
-        active_errors = [p for p in [can_payload, ros_payload, docker_payload] if p is not True]
+        active_errors = [p for p in [can_payload, ros_payload] if p is not True]
 
         final_payload = {
             "timestamp": time.time(),

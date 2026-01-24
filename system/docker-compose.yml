@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  robot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: system_health
+    stdin_open: true
+    tty: true
+    privileged: true
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /dev:/dev
+      - ./config:/ros_ws/config:ro
+      - ./logs:/ros_ws/logs
+    environment:
+      - ROS_DOMAIN_ID=0
+      - ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/ros_ws/fastrtps.xml
